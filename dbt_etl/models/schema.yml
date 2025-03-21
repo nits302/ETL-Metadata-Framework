@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: customers
+    description: "Bảng kích thước khách hàng đã được xử lý"
+    columns:
+      - name: customer_id
+        description: "ID khách hàng"
+        tests:
+          - unique
+          - not_null
+
+  - name: orders
+    description: "Bảng sự kiện đơn hàng đã được xử lý"
+    columns:
+      - name: order_id
+        description: "ID đơn hàng"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "ID khách hàng"
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id

@@ -3,7 +3,6 @@ import boto3
 from pyspark.sql import SparkSession
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
@@ -11,7 +10,6 @@ AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
 AWS_REGION = os.getenv("AWS_REGION")
 
-# File paths
 CUSTOMER_FILE_PATH = "data/raw/customers.json"
 ORDER_FILE_PATH = "data/raw/orders.json"
 PROCESSED_CUSTOMER_PATH = "data/processed/customers"
@@ -26,7 +24,7 @@ def create_spark_session():
 
 def read_json_to_df(spark, file_path):
     print(f"Reading data from {file_path}...")
-    return spark.read.option("multiline", "true").json(file_path)
+    return spark.read.json(file_path)
 
 
 def write_df_to_parquet(df, file_path):

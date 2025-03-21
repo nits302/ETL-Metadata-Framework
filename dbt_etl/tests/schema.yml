@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Dữ liệu khách hàng đã được chuẩn hóa"
+    columns:
+      - name: customer_id
+        description: "ID của khách hàng"
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: "Dữ liệu đơn hàng đã được chuẩn hóa"
+    columns:
+      - name: order_id
+        description: "ID của đơn hàng"
+        tests:
+          - not_null
+      - name: customer_id
+        description: "ID của khách hàng"
+        tests:
+          - not_null
