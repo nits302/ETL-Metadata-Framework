@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 from faker import Faker
-from datetime import datetime
+from datetime import datetime, timedelta
 
 fake = Faker()
 
@@ -10,7 +10,7 @@ NUM_RECORDS = 1000
 DIRTY_DATA_RATIO = 0.1
 NUM_DIRTY_RECORDS = int(NUM_RECORDS * DIRTY_DATA_RATIO)
 DATETIME_START = datetime(2025, 1, 1)
-DATETIME_END = datetime(2025, 3, 31)
+DATETIME_END = datetime.now() - timedelta(days=1)
 
 # File paths
 CUSTOMER_FILE_PATH = "data/raw/customers.json"
@@ -28,8 +28,10 @@ def create_customers(num_records=NUM_RECORDS):
             "phone": [fake.phone_number() for _ in range(num_records)],
             "address": [fake.address().replace("\n", ", ") for _ in range(num_records)],
             "created_at": [
-                fake.date_time_between_dates(
-                    datetime_start=DATETIME_START, datetime_end=DATETIME_END
+                int(
+                    fake.date_time_between_dates(
+                        datetime_start=DATETIME_START, datetime_end=DATETIME_END
+                    ).timestamp()
                 )
                 for _ in range(num_records)
             ],
@@ -47,31 +49,33 @@ def create_orders(num_records=NUM_RECORDS, customer_ids=None):
             "product_name": [fake.word() for _ in range(num_records)],
             "quantity": [random.randint(1, 10) for _ in range(num_records)],
             "price": [round(random.uniform(5, 500), 2) for _ in range(num_records)],
-            "order_date": [fake.date_time_this_decade() for _ in range(num_records)],
+            "order_date": [
+                int(
+                    fake.date_time_between_dates(
+                        datetime_start=DATETIME_START, datetime_end=DATETIME_END
+                    ).timestamp()
+                )
+                for _ in range(num_records)
+            ],
         }
     )
     return orders
 
 
-def create_dirty_data(df, num_dirty_records=NUM_DIRTY_RECORDS):
+def create_dirty_data_orders(df, num_dirty_records=NUM_DIRTY_RECORDS):
     print(f"Creating dirty data for {num_dirty_records} records...")
     for i in range(num_dirty_records):
         idx = random.randint(0, len(df) - 1)
         # Missing Data
         if random.random() < DIRTY_DATA_RATIO:
-            df.at[idx, "email"] = None
+            df.at[idx, "product_name"] = None
         if random.random() < DIRTY_DATA_RATIO:
-            df.at[idx, "phone"] = None
+            df.at[idx, "quantity"] = None
         if random.random() < DIRTY_DATA_RATIO:
-            df.at[idx, "address"] = None
+            df.at[idx, "price"] = None
         # Duplicate Data
         if random.random() < DIRTY_DATA_RATIO:
             df = df._append(df.iloc[idx])
-        # Invalid Data
-        if random.random() < DIRTY_DATA_RATIO:
-            df.at[idx, "email"] = "invalid_email"
-        if random.random() < DIRTY_DATA_RATIO:
-            df.at[idx, "phone"] = "invalid_phone"
     return df
 
 
@@ -82,13 +86,10 @@ def save_to_json(df, file_path):
 
 def main():
     customers = create_customers()
-    customers = create_dirty_data(
-        customers, num_dirty_records=int(NUM_RECORDS * DIRTY_DATA_RATIO)
-    )
     save_to_json(customers, CUSTOMER_FILE_PATH)
 
     orders = create_orders(customer_ids=customers["customer_id"].tolist())
-    orders = create_dirty_data(
+    orders = create_dirty_data_orders(
         orders, num_dirty_records=int(NUM_RECORDS * DIRTY_DATA_RATIO)
     )
     save_to_json(orders, ORDER_FILE_PATH)
