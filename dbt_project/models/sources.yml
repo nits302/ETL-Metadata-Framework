@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: postgres_raw
+    database: "{{ env_var('POSTGRES_DATABASE', 'etl_metadata') }}"
+    schema: public
+    tables:
+      - name: customers
+        description: "Raw customers data"
+        columns:
+          - name: customer_id
+            description: "Primary key"
+          - name: name
+            description: "Customer name"
+          - name: email
+            description: "Customer email"
+          - name: phone
+            description: "Customer phone number"
+          - name: address
+            description: "Customer address"
+          - name: created_at
+            description: "Customer creation timestamp"
+
+      - name: orders
+        description: "Raw orders data"
+        columns:
+          - name: order_id
+            description: "Primary key"
+          - name: customer_id
+            description: "Foreign key to customers"
+          - name: product_name
+            description: "Product name"
+          - name: quantity
+            description: "Order quantity"
+          - name: price
+            description: "Price per unit"
+          - name: order_date
+            description: "Date of the order"
+
+  - name: bronze
+    database: "{{ env_var('POSTGRES_DATABASE', 'etl_metadata') }}"
+    schema: bronze
+    tables:
+      - name: bro_customers
+        description: "Bronze layer customers data"
+      - name: bro_orders
+        description: "Bronze layer orders data"
+
+  - name: silver
+    database: "{{ env_var('POSTGRES_DATABASE', 'etl_metadata') }}"
+    schema: silver
+    tables:
+      - name: sil_customers
+        description: "Silver layer customers data"
+      - name: sil_orders
+        description: "Silver layer orders data"

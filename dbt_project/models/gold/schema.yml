@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension table"
+    config:
+      tags: ["gold", "dimension"]
+    columns:
+      - name: customer_id
+        description: "Natural key from source system"
+        tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: "Customer name"
+        tests:
+          - not_null
+      - name: email
+        description: "Customer email"
+      - name: phone
+        description: "Customer phone number"
+      - name: address
+        description: "Customer address"
+      - name: customer_created_at
+        description: "Customer creation timestamp"
+      - name: transformed_at
+        description: "Timestamp when data was transformed in silver layer"
+      - name: loaded_at
+        description: "Timestamp when data was loaded into gold layer"
+
+  - name: fct_orders_full_load
+    description: "Fact table for orders - full load version"
+    config:
+      tags: ["gold", "fact"]
+    columns:
+      - name: order_id
+        description: "Natural key from source system"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: product_name
+        description: "Name of the product"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Quantity of product ordered"
+      - name: price
+        description: "Unit price of product"
+      - name: order_date
+        description: "Date of the order"
+      - name: order_total
+        description: "Total order amount (quantity * price)"
+      - name: loaded_at
+        description: "Timestamp when this record was loaded into gold layer"
+
+  - name: fct_orders_incremental
+    description: "Fact table for orders - incremental load version"
+    config:
+      tags: ["gold", "fact", "incremental"]
+    columns:
+      - name: order_id
+        description: "Natural key from source system"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: product_name
+        description: "Name of the product"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Quantity of product ordered"
+      - name: price
+        description: "Unit price of product"
+      - name: order_date
+        description: "Date of the order"
+      - name: order_total
+        description: "Total order amount (quantity * price)"
+      - name: silver_loaded_at
+        description: "Timestamp when data was loaded in silver layer"
+      - name: loaded_at
+        description: "Timestamp when data was loaded into gold layer"

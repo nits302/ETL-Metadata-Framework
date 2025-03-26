@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: sil_customers
+    description: "Silver layer for customer data - cleaned and standardized"
+    config:
+      tags: ["silver", "customers"]
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_name
+        description: "Customer name (trimmed)"
+        tests:
+          - not_null
+      - name: email
+        description: "Customer email (lowercase)"
+      - name: phone
+        description: "Customer phone number"
+      - name: address
+        description: "Customer address"
+      - name: created_at
+        description: "Customer creation timestamp (converted to timestamp)"
+      - name: loaded_at
+        description: "Timestamp when data was loaded from bronze"
+
+  - name: sil_orders
+    description: "Silver layer for order data - cleaned and standardized"
+    config:
+      tags: ["silver", "orders"]
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('sil_customers')
+              field: customer_id
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Order quantity"
+      - name: price
+        description: "Price per unit"
+      - name: order_date
+        description: "Date of the order (converted to timestamp)"
+      - name: order_total
+        description: "Calculated total amount (quantity * price)"
+      - name: loaded_at
+        description: "Timestamp when data was loaded from bronze"

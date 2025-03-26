@@ -1,0 +1,18 @@
+dbt_etl:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', 5432) | as_number }}"
+      user: "{{ env_var('POSTGRES_USER', 'postgres') }}"
+      pass: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: "{{ env_var('POSTGRES_DATABASE', 'etl_metadata') }}"
+      schema: bronze
+      threads: 4
+
+  # Định nghĩa biến cho DBT
+  vars:
+    bronze_schema: bronze
+    silver_schema: silver
+    gold_schema: gold

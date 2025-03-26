@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: bro_customers
+    description: "Bronze layer for customer data"
+    config:
+      tags: ["bronze", "customers"]
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Customer name"
+        tests:
+          - not_null
+      - name: email
+        description: "Customer email"
+      - name: phone
+        description: "Customer phone number"
+      - name: address
+        description: "Customer address"
+      - name: created_at
+        description: "Customer creation timestamp"
+      - name: loaded_at
+        description: "Timestamp when data was loaded into bronze"
+
+  - name: bro_orders
+    description: "Bronze layer for order data"
+    config:
+      tags: ["bronze", "orders"]
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('bro_customers')
+              field: customer_id
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Order quantity"
+      - name: price
+        description: "Price per unit"
+      - name: order_date
+        description: "Date of the order"
+      - name: loaded_at
+        description: "Timestamp when data was loaded into bronze"

@@ -1,0 +1,46 @@
+name: dbt_etl
+version: 1.0.0
+config-version: 2
+
+profile: dbt_etl
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+vars:
+  controller_schema: public
+  controller_table: controller
+  bronze_schema: bronze
+  silver_schema: silver
+  gold_schema: gold
+  strict_validation: true
+
+models:
+  dbt_etl:
+    # Bronze layer - raw data with minimal transformations
+    bronze:
+      +schema: bronze
+      +materialized: incremental
+      +tags: ["bronze"]
+
+    # Silver layer - intermediate, cleaned data
+    silver:
+      +schema: silver
+      +materialized: incremental
+      +tags: ["silver"]
+
+    # Gold layer - final, business-ready data
+    gold:
+      +schema: gold
+      +materialized: table
+      +tags: ["gold"]
